@@ -12,23 +12,19 @@ This repository contains bash, matlab and R scripts for image preprocessing, aut
 ### **`data`** 
 All raw data collected from your experiments as well as copies of the transformed data from your processing code. 
 
-### **`miscellaneous`** 
+### **`image processing`** 
 Files that may not be code, but are important for reproducibility of your findings.
 * **`protocols`**: A well annotated and general description of your experiments. These protocols should be descriptive enough for someone to follow your experiments independently 
 * **`materials`**: Information regarding the materials used in your experiments or data generation. This could include manufacturer information, records of purity, and/or lot and catalog numbers.
 * **`software details`**: Information about your computational environment that are necessary for others to execute your code. This includes details about your operating system, software version and required packages.
 
-### **`tests`** 
+### **`statistical analysis`** 
 All test suites for your code. *Any custom code you've written should be thoroughly and adequately tested to make sure you know how it is working.*
 
-### **`software_module`** 
+### **`figures`** 
 Custom code you've written that is *not* executed directly, but is called from files in the `code` directory. If you've written your code in Python, for example, this can be the root folder for your custom software module or simply house a file with all of your functions. 
+ 
 
-### **`templates`** 
-Files that serve as blank templates that document the procedures taken for each experiment, simulation, or analysis routine. 
-
-### Required Files
-There are some files which I consider to be mandatory for any project.
 
 1. **`LICENSE`**: A legal protection of your work. *It is important to think deeply about the licensing of your work, and is not a decision to be made lightly. See [this useful site](https://choosealicense.com/) for more information about licensing and choosing the correct license for your project.*
 
