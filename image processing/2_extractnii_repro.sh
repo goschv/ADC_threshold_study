@@ -22,7 +22,7 @@ echo $s
 
 fslsplit $s/*_3.nii $s/
 
-# rename fslsplit b0 image
+# rename fslsplit b0 image first image series resembles b0
 
 mv $s/0000.nii.gz $s/b0.nii.gz
 
@@ -35,3 +35,8 @@ done
 
 done
 
+
+# references
+
+'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL
+ 32 Woolrich MW, Jbabdi S, Patenaude B, Chappell M, Makni S, Behrens T, et al. Bayesian analysis of neuroimaging data in FSL. Neuroimage. 2009;45: S173–86.'
