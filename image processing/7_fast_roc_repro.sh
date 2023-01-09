@@ -87,7 +87,6 @@ done
 
 # references
 
-' https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL
+'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL
 32 Woolrich MW, Jbabdi S, Patenaude B, Chappell M, Makni S, Behrens T, et al. Bayesian analysis of neuroimaging data in FSL. Neuroimage. 2009;45: S173–86
-21	Smith SM. Fast robust automated brain extraction. Hum Brain Mapp. 2002;17: 143–155.
-'
+21 Smith SM. Fast robust automated brain extraction. Hum Brain Mapp. 2002;17: 143–155.'
