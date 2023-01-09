@@ -226,15 +226,21 @@ done
 #fslmaths $s/processed/algo/1_run_pipeline1/TRACEdivADC_merged_kernelbox12_thr2_dilM.nii.gz -dilM $s/processed/algo/1_run_pipeline1/TRACEdivADC_merged_kernelbox12_thr2_dilM2.nii.gz
 
 
-# The final applied absolute threshold can vary; here I used the one from Purushotham et al.
+# The final applied absolute threshold can vary; here I used the one from Purushotham et al. 2015
 
 '---------------------------------------------------------------------------------------------DATA STRUCTURE-------------------------------------------------------------------'
 
 # $s/X/"${s:9}" 
-# Save everything as a txt file, also ADC maps! Encode outputs as following:
+# Save everything as a txt file, also ADC maps! Encode output as following:
 #$s/X/"${s:9}" / TRHreg1 / auto / “output”
 #identifier    / pipeline    / modality / “output” → Use Stats/DATA 
 
 
+# references
+
+' Written by Vitus Gosch - Universitätsmedizin Berlin, corporate member of Freie Universität Berlin and Humboldt-Universität zu Berlin, Center for Stroke Research Berlin, Berlin, Germany
+https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL
+32 Woolrich MW, Jbabdi S, Patenaude B, Chappell M, Makni S, Behrens T, et al. Bayesian analysis of neuroimaging data in FSL. Neuroimage. 2009;45: S173–86
+10 Purushotham A, Campbell BCV, Straka M, Mlynash M, Olivot J-M, Bammer R, et al. Apparent diffusion coefficient threshold for delineation of ischemic core. Int J Stroke. 2015;10: 348–353.'
 
 
