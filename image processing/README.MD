@@ -6,3 +6,5 @@ Matlab and shell scripts written for image preprocessing, automated lesion delin
 
 Running the bash scripts requires the FMRIB Software Library, Release 6.0 (c) 2018, The University of Oxford (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence). 
 Additional software if needed is mentioned in the reference section of each script.
+
+
