@@ -84,3 +84,7 @@ fslmaths $s/processed/ROC_fast4_dil/ROI_manual_3_dil.nii.gz -roc -1 $s/processed
 done
 
 
+# references
+'
+21	Smith SM. Fast robust automated brain extraction. Hum Brain Mapp. 2002;17: 143–155.
+'
