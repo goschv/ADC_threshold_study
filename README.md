@@ -2,10 +2,12 @@
 
 Code and data for "A comparison between automated, threshold-based acute ischemic stroke lesion delineation and expert manual delineation" study
 
-Authors: Vitus Gosch, Doctoral Candidate – Center for Stroke Research Berlin, Charité Universitaetsmedizin Berlin
+Authors: Vitus Gosch, Doctoral Candidate – Center for Stroke Research Berlin, Charité Universitätsmedizin Berlin
+
 
 ## Background
 This repository contains bash, matlab and R scripts for image preprocessing, automated lesion delineation and statistical analysis. It provides data used for the study. 
+
 
 ## Structure
 
@@ -17,6 +19,7 @@ Matlab and shell scripts written for image preprocessing, automated lesion delin
 
 ### **`statistical analysis`** 
 R-scripts used for the study. RStudio Version 2022.07.1 © was used. Packages are mentioned in each script.
+
 
 ## License 
 Own work MIT licensed. Third party ressources are cited and referred to within the files.
