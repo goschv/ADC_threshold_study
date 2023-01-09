@@ -41,3 +41,9 @@ bet $s/*b0.nii.gz  $s/processed/"${s:9:11}"_b0_bet.nii.gz -f 0.2 -R
 done
 
 done
+
+
+# references
+
+'20 Li X, Morgan PS, Ashburner J, Smith J, Rorden C. The first step for neuroimaging data analysis: DICOM to NIfTI conversion. J Neurosci Methods. 2016;264: 47–56.
+ 21 Smith SM. Fast robust automated brain extraction. Hum Brain Mapp. 2002;17: 143–155.'
