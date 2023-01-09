@@ -1,4 +1,4 @@
-# ADC thresholds for automated lesion delineation study
+# ADC threshold project
 
 Code and data for "A comparison between automated, threshold-based acute ischemic stroke lesion delineation and expert manual delineation" study
 
