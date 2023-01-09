@@ -29,3 +29,8 @@ for k = 2:2 % loop through all folders
       
       roi2analyze(fullfile(data_dir,curr_dir,'/ROI',roi.name),fullfile(data_dir,curr_dir,'/ROI',dwi.name),1) % convert ROI file to ANALYZE
 end
+
+% references
+
+% roi2analyze function 2-2007 by H.Schuetze, Dept. Neurology II, Magdeburg
+% additional info at: http://www.sph.sc.edu/comd/rorden/roiformat/
