@@ -85,6 +85,7 @@ fslmaths $s/processed/ROC_fast4_dil/ROI_manual_3_dil.nii.gz -roc -1 $s/processed
 
 done
 
+
 # references
 
 'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL
