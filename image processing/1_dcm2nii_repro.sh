@@ -45,6 +45,7 @@ done
 
 # references
 
-'32 Woolrich MW, Jbabdi S, Patenaude B, Chappell M, Makni S, Behrens T, et al. Bayesian analysis of neuroimaging data in FSL. Neuroimage. 2009;45: S173–86.
+'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL
+ 32 Woolrich MW, Jbabdi S, Patenaude B, Chappell M, Makni S, Behrens T, et al. Bayesian analysis of neuroimaging data in FSL. Neuroimage. 2009;45: S173–86.
  20 Li X, Morgan PS, Ashburner J, Smith J, Rorden C. The first step for neuroimaging data analysis: DICOM to NIfTI conversion. J Neurosci Methods. 2016;264: 47–56.
  21 Smith SM. Fast robust automated brain extraction. Hum Brain Mapp. 2002;17: 143–155.'
