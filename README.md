@@ -18,4 +18,5 @@ Matlab and shell scripts written for image preprocessing, automated lesion delin
 ### **`statistical analysis`** 
 R-scripts used for the study.
 
-# **`LICENSE`**: A legal protection of your work. *It is important to think deeply about the licensing of your work, and is not a decision to be made lightly. See [this useful site](https://choosealicense.com/) for more information about licensing and choosing the correct license for your project.*
+## **`License`** 
+Scripts 
