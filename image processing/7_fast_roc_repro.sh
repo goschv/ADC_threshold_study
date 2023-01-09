@@ -75,6 +75,8 @@ fslmaths $s/processed/ROC_fast4_dil/ROI_manual_3_dil.nii.gz -roc -1 $s/processed
 
 '---------------------------------------------------------------------------Output ROC-------------------------------------------------------------------'
 
+# ROC analysis samples at different stepped intervals. Output has to be inverted to find an upper threshold, default output defines a lower threshold. 
+
 #cp $s/processed/ROC_fast4/*txt /home/goschv/CSB_NeuroRad2/goschv/Stats/ROC_fast4/
 #cp $s/processed/ROC_fast4_dil/"${s:9}"_ROC_fast_dil_out.txt /home/goschv/CSB_NeuroRad2/goschv/Stats/ROC_fast_4_dil/
 
