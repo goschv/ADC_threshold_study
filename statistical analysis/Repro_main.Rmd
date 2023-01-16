@@ -1,0 +1,459 @@
+---
+title: "Statistical analysis ADC Study"
+author: "Vitus Gosch"
+date: '2022-11-17'
+output: html_document
+---
+
+Df "Xrepro_annonymized" was created by reading in text file output out of shell scripts written to analyze image data. The Df is available in annonymized form, meaning all possible identifiers are removed.
+
+Nomenclature: # importing data or packages   ## statistical analysis  ### visualization
+
+
+*############# Load data and packages #############*
+
+```{r}
+# Load data
+load(file = "Xrepro_annonymized.RData")
+X <- Xrepro_annonymized
+
+# Load packages
+library(GGally)
+library(ggplot2)
+
+library(dplyr) 
+
+library(viridis)
+library(hrbrthemes)
+
+library(tidyr)
+
+library(broom)
+library(forestmangr)
+
+library(lmtest)
+library(gvlma)
+
+```
+
+
+*################ Figure 3 ################*
+*Using summary to assess volume and ADC distribution. Building boxplots and ggparcoord visuals*
+
+```{r}
+
+## Tests for normal distribution - Decide wether variables are normally distributed or not and for what reason you could make an exception
+shapiro.test(X$VOL_1)
+shapiro.test(X$VOL_manual_1)
+shapiro.test(X$MEAN_auto_1)
+shapiro.test(X$MEAN_manual_1)
+
+
+## Day 1 comparison volume   
+complete_VOL_evo <- X %>% select("VOL_1","VOL_manual_1")
+complete_VOL_evo <- dplyr::rename(complete_VOL_evo, "Automated ROI" = VOL_1)
+complete_VOL_evo <- dplyr::rename(complete_VOL_evo, "Manual ROI" = VOL_manual_1)
+mean_VOL_auto <- mean(X$VOL_1)
+mean_VOL_manual <- mean(X$VOL_manual_1)
+
+summary(complete_VOL_evo$`Automated ROI`)
+summary(complete_VOL_evo$`Manual ROI`)
+
+
+## Day 1 comparison ADC  
+complete_MEAN_evo <- X %>% select("MEAN_auto_1","MEAN_manual_1")
+complete_MEAN_evo <- dplyr::rename(complete_MEAN_evo, "Automated ROI" = MEAN_auto_1)
+complete_MEAN_evo <- dplyr::rename(complete_MEAN_evo, "Manual ROI" = MEAN_manual_1)
+mean_MEAN_auto <- mean(X$MEAN_auto_1, na.rm = TRUE)
+mean_MEAN_manual <- mean(X$MEAN_manual_1)
+
+summary(complete_MEAN_evo$`Automated ROI`)
+summary(complete_MEAN_evo$`Manual ROI`)
+
+
+
+### ggparcord general appaerance
+        
+#png("descriptive_A.png", units="in", width=5, height=5, res=300)
+ 
+ggparcoord (data=complete_MEAN_evo, columns = 1:2, scale="globalminmax", showPoints = TRUE, alphaLines = 0.1, boxplot = TRUE) +
+    theme(legend.position="none", axis.title.x=element_blank(),
+        axis.text.x=element_text(color = "black",size = 20),
+        axis.ticks.x=element_blank(),
+        axis.title.y = element_text(size = 20),
+        axis.text.y = element_text(color = "black",size = 20),
+        panel.background = element_blank(),
+        panel.grid.minor = element_line(colour = "light grey"),
+        panel.grid.major = element_line(colour = "light grey")) +
+        ylab(expression(paste("Mean ADC in 10"^"−6","mm"^"2","/s"))) + theme(text=element_text(size=15, family="Arial")) +
+  labs(caption = "A") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 20))
+
+
+#png("descriptive_B.png", units="in", width=5, height=5, res=300)
+
+ggparcoord (data=complete_VOL_evo, columns = 1:2, scale="globalminmax", showPoints = TRUE, alphaLines = 0.1, boxplot = TRUE) +
+    theme(legend.position="none", axis.title.x=element_blank(),
+        axis.text.x=element_text(color = "black",size = 20),
+        axis.ticks.x=element_blank(),
+        axis.title.y = element_text(size = 20),
+        axis.text.y = element_text(color = "black",size = 20),
+        panel.background = element_blank(),
+        panel.grid.minor = element_line(colour = "light grey"),
+        panel.grid.major = element_line(colour = "light grey")) +
+        ylab("Volume (ml)") + theme(text=element_text(size=15, family="Arial")) +
+  labs(caption = "B") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 20))
+
+
+```
+
+
+*################ Figure 4A ################ Bland Altman analysis*
+*Generating new df “abs” and finding mean absolute differences, CIs. Performing BA analysis with plotting X instead of X1+X2/2 because X is a reference method. (https://onlinelibrary.wiley.com/doi/epdf/10.1002/sim.3086 Why Bland–Altman plots should use X, not (Y+X)/2 when X is a reference method).* 
+
+```{r}
+## Bland Altman plot against X - Try ABSOLUTE values
+abs <- X %>% select(VOL_manual_1, VOL_1) %>% mutate(diff=VOL_1 - VOL_manual_1,          avg=(VOL_manual_1+VOL_1)/2)
+abs$pdiff <- as.numeric((abs$diff / abs$VOL_manual_1))
+    
+## find average difference & 95% confidence interval limits
+mean_diff <- mean(abs$diff)
+mean_diff
+
+lower <- mean_diff - 1.96*sd(abs$diff)
+lower
+
+upper <- mean_diff + 1.96*sd(abs$diff)
+upper
+
+### plot with x as reference method
+
+#png("volumetrics_A_18.png", units="in", width=5, height=5, res=300)
+
+ggplot(abs, aes(x = VOL_manual_1, y = diff)) +
+  geom_point(size=2, alpha = 1) +
+  geom_hline(yintercept = mean_diff, color = "blue") +
+  geom_hline(yintercept = lower, color = "red", linetype="dashed") +
+  geom_hline(yintercept = upper, color = "red", linetype="dashed") +
+  ylab("Differences between methods (ml)") +
+  xlab("Manual ROI (ml)") +
+  coord_equal() +
+    theme_bw() +
+    theme(panel.border = element_blank(), axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 18),axis.text =     
+            element_text(size = 20, colour = "black")) + 
+  labs(caption = "A") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 20))
+
+dev.off()
+
+```
+
+
+*################ Figure 4B ################ Volumetric analysis*
+*Volumetric agreement. Log scale to also show differences in low volumes.*
+
+```{r}
+
+
+## Correlation and linear regression
+
+cor.test(X$VOL_1, X$VOL_manual_1)
+lm_vol <- lm(VOL_1~VOL_manual_1, data = X)
+summary(lm_vol)
+
+
+### Plot log comparison
+
+#png("volumetrics_B.png", units="in", width=5, height=5, res=300)
+
+ggplot(X, aes(VOL_manual_1, VOL_1)) + 
+    geom_point( color = "black", size = 2) + labs(x = "Manual ROI (ml)", y = "Automated ROI (ml)") +       geom_smooth(method="lm", color = "blue") +
+    scale_x_continuous(trans='log', breaks = c(0.1, 1.00,10.00,80.00)) + 
+    scale_y_continuous(trans='log', breaks = c(0.1, 1.00,10.00,80.00)) + 
+    coord_equal() +
+    theme_bw() +
+    theme(panel.border = element_blank(), axis.title = element_text(size = 20), axis.text =     
+            element_text(size = 20, colour = "black")) + 
+  labs(caption = "B") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 20))
+
+
+```
+
+
+*################ Figure 4C ################ DICE coefficient*
+
+```{r}
+
+## DICE score
+
+DSC <- select(X, "DSC_1")
+summary(DSC)
+
+
+### DICE visualization
+
+#png("volumetrics_C.png", units="in", width=5, height=5, res=300)
+
+DSC %>%
+    gather(key="MesureType", value="Val") %>%
+    ggplot(aes(x=MesureType, y=Val, fill=MesureType)) +
+    geom_boxplot(fill = "white") +
+    geom_jitter(color="black", size=2, alpha=1, width = 0.2) +
+    theme(
+        legend.position="none", axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y = element_text(size = 20),
+        axis.text.y = element_text(color = "black",size = 20),
+        panel.background = element_blank(),
+        panel.grid.minor = element_line(colour = "light grey"),
+        panel.grid.major = element_line(colour = "light grey")
+    ) +
+    ggtitle("") +
+    ylab("Dice coefficient") + xlab("") + 
+  labs(caption = "C") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 20))
+
+
+
+```
+
+
+*################ Figure 5 ################ ROC analysis*
+*Only part were additional data was used distant from "X" df. Files to be read in are direct output of fslmaths - roc. TPR, FPR and ADC value were read in separately. Specificity was calculated. "output_roc_fast" files contain maximum output in the primary file (therefore not pooled results) but best possible threshold for each subject*  
+
+```{r}
+
+# load ROC files, priorly read in as txt files of 1001 line length
+
+load(file = "TPR_all4.RData")
+load(file = "TPR_all4_dil.RData")
+
+load(file = "FPR_all4.RData")
+load(file = "FPR_all4_dil.RData")
+
+load(file = "ADC_all4.RData")
+load(file = "ADC_all4_dil.RData")
+
+load(file = "Spec_all4.RData")
+load(file = "Spec_all4_dil.RData")
+
+load(file = "Youden_all4.RData")
+load(file = "Youden_all4_dil.RData")
+
+load(file = "output_roc_fast4_repro_annonymized.RData")
+load(file = "output_roc_fast4_dil_repro_annonymized.RData")
+
+
+## Generate pooled data by adding up all rows horizontally 
+
+FPR_all4_mean <- rowMeans(FPR_all4)
+TPR_all4_mean <- rowMeans(TPR_all4)
+ADC_all4_mean <- rowMeans(ADC_all4)
+Youden_all4_mean <- rowMeans(Youden_all4)
+FPR_all4_mean <- as.data.frame(FPR_all4_mean)
+FPR_all4_mean$row <- seq.int(nrow(FPR_all4_mean))
+TPR_all4_mean <- as.data.frame(TPR_all4_mean)
+TPR_all4_mean$row <- seq.int(nrow(TPR_all4_mean))
+ADC_all4_mean <- as.data.frame(ADC_all4_mean)
+ADC_all4_mean$row <- seq.int(nrow(ADC_all4_mean))
+Youden_all4_mean <- as.data.frame(Youden_all4_mean)
+Youden_all4_mean$row <- seq.int(nrow(Youden_all4_mean))
+all4_mean <- merge(FPR_all4_mean, TPR_all4_mean, by="row")
+all4_mean <- merge(all4_mean, ADC_all4_mean, by="row")
+all4_mean <- merge(all4_mean, Youden_all4_mean, by="row")
+
+FPR_all4_dil_mean <- rowMeans(FPR_all4_dil)
+TPR_all4_dil_mean <- rowMeans(TPR_all4_dil)
+ADC_all4_dil_mean <- rowMeans(ADC_all4_dil)
+Youden_all4_dil_mean <- rowMeans(Youden_all4_dil)
+FPR_all4_dil_mean <- as.data.frame(FPR_all4_dil_mean)
+FPR_all4_dil_mean$row <- seq.int(nrow(FPR_all4_dil_mean))
+TPR_all4_dil_mean <- as.data.frame(TPR_all4_dil_mean)
+TPR_all4_dil_mean$row <- seq.int(nrow(TPR_all4_dil_mean))
+ADC_all4_dil_mean <- as.data.frame(ADC_all4_dil_mean)
+ADC_all4_dil_mean$row <- seq.int(nrow(ADC_all4_dil_mean))
+Youden_all4_dil_mean <- as.data.frame(Youden_all4_dil_mean)
+Youden_all4_dil_mean$row <- seq.int(nrow(Youden_all4_dil_mean))
+all4_dil_mean <- merge(FPR_all4_dil_mean, TPR_all4_dil_mean, by="row")
+all4_dil_mean <- merge(all4_dil_mean, ADC_all4_dil_mean, by="row")
+all4_dil_mean <- merge(all4_dil_mean, Youden_all4_dil_mean, by="row")
+
+## Pooled ROC analysis result, max. YI, sens + spec + AUC
+
+all4_mean[which.max(all4_mean$Youden_all4_mean),]
+all4_dil_mean[which.max(all4_dil_mean$Youden_all4_dil_mean),]
+library(pracma)
+trapz(FPR_all4_mean[,1], TPR_all4_mean[,1])
+trapz(FPR_all4_dil_mean[,1], TPR_all4_dil_mean[,1])
+    "AUC will be inverted due to reversed order"
+
+
+########################### Viszualize pooled ROC data #####################
+
+
+### Plot all mean ROC curves  
+
+plot(rowMeans(FPR_all4), rowMeans(TPR_all4), type = "l", lwd = "3", lty = 1, col = 1, add=TRUE, xlim = c(0,1), ylim = c(0,1), xlab = "FPR", ylab = "TPR", cex.lab = 1.6, cex.axis = 1.6)
+lines(rowMeans(FPR_all4_dil), rowMeans(TPR_all4_dil), type = "l", lwd = "3", lty = 1, col = 3)
+abline(a=0, b=1, lty = 3)
+
+plot(rowMeans(ADC_all4), rowMeans(Youden_all4), type = "l", lwd = "3", lty = 1, col = 1, add=TRUE, xlim = c(0,2500), ylim = c(0,0.5), xlab = "Pooled ADC Thresholds (x10^−6 mm2/s)", ylab = "Pooled Youden Index", cex.lab = 1.3, cex.axis = 1.3)
+lines(rowMeans(ADC_all4_dil), rowMeans(Youden_all4_dil), type = "l", lwd = "3", lty = 1, col = 3)
+legend(1500, 0.5, legend=c("Whole brain", "Dilated DWI lesion"),
+       col=c("black", "green"), lty=1, cex=1, bty = "n")
+
+### Individual and mean Curves combined 
+
+#png("ROC_A.png", units="in", res=300, width = 5, height = 5)
+
+matplot(FPR_all4, TPR_all4,  xaxs = "i", yaxs = "i", type = "l", lwd = "0.5", lty = 1, col = rgb(0,0,0, alpha = 0.3), xlab = "FPR", ylab = "TPR", main = "", cex = 1.5, cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.4)
+matplot(FPR_all4_dil, TPR_all4_dil,  xaxs = "i", yaxs = "i", type = "l", lwd = "0.5", lty = 1, col = rgb(0,0,1, alpha = 0.2), add=TRUE)
+abline(a=0, b=1, lty=3)
+matplot(rowMeans(FPR_all4), rowMeans(TPR_all4), type = "l", lwd = "3", lty = 1, col = rgb(0,0,0), add=TRUE)
+matplot(rowMeans(FPR_all4_dil), rowMeans(TPR_all4_dil), type = "l", lwd = "3", lty = 1,  col = rgb(0,0,1), add=TRUE) 
+mtext("A", side = 1, line = 4, cex = 1.5, adj = -0.2) 
+
+
+#png("ROC_B.png", units="in", res=300, width = 5, height = 5)
+
+lim <- c(0,2000)
+matplot(ADC_all4, Youden_all4,xaxs = "i", yaxs = "i" , type = "l", lwd = "0.5", lty = 1, col = rgb(0,0,0, alpha = 0.15), xlab = expression(paste("Mean ADC in 10"^"−6","mm"^"2","/s")), ylab = "Youden Index", main = "", cex = 1.3, xlim = lim, cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
+matplot(ADC_all4_dil, Youden_all4_dil,xaxs = "i", yaxs = "i" , type = "l", lwd = "0.5", lty = 1, col = rgb(0,0,1, alpha = 0.12), add = TRUE)
+matplot(rowMeans(ADC_all4), rowMeans(Youden_all4), type = "l", lwd = "3", lty = 1,col = 1, add=TRUE)
+matplot(rowMeans(ADC_all4_dil), rowMeans(Youden_all4_dil), type = "l", lwd = "3", lty = 1, col = rgb(0,0,1), add=TRUE)
+legend(850, 0.85, legend=c("Whole brain", "Dilated DWI lesion"),
+       col=c("black", "blue"), lty=1, cex=1, lwd = 2, bty = "n") 
+mtext("B", side = 1, line = 4, cex = 1.5, adj = -0.2) 
+
+
+```
+
+
+*################ Figure 6 ################ Linear Model*
+*Using lm as a function, assessing assumptions via gvlma and visually*
+
+```{r}
+
+## Plain Approach standardized - Exclude wake up strokes
+Xs <- X[,c("DSC_1", "TOO", "age", "MEAN_manual_1", "VOL_manual_1", "MEAN_fast", "youden_fast4")]
+Xs <- Xs[Xs$TOO != 720, ]
+Xs <- Xs %>% mutate_at(c("TOO", "age", "MEAN_manual_1", "VOL_manual_1", "MEAN_fast", "youden_fast4", "DSC_1"), scale)
+
+lmyou <- lm(formula = Xs$youden_fast4 ~ Xs$TOO + Xs$age + Xs$VOL_manual_1 + Xs$MEAN_manual_1 + Xs$MEAN_fast, data = Xs)
+names(lmyou$coefficients) <- c("(Intercept)", "TOO","Age","Volume DWI Lesion","Mean ADC DWI Lesion", "Mean ADC Parenchyma")
+
+lmdsc <- lm(formula = Xs$DSC_1 ~ Xs$TOO + Xs$age + Xs$VOL_manual_1 + Xs$MEAN_manual_1 +  Xs$MEAN_fast, data = Xs)
+names(lmdsc$coefficients) <- c("(Intercept)", "TOO","Age","Volume DWI Lesion","Mean ADC DWI Lesion", "Mean ADC Parenchyma")
+
+summary(lmyou)
+summary(lmdsc)
+
+
+## Testing assumptions
+
+gvlma::gvlma.lm(lmobj = lmdsc) 
+gvlma::gvlma.lm(lmobj = lmyou) 
+
+par(mfrow = c(2, 2))
+plot(lmdsc)
+par(mfrow = c(2, 2))
+plot(lmyou)
+
+
+### Plot both models
+
+                             "DICE"
+coef <- coef(lmdsc)
+ConfidenceInterval <- confint(lmdsc)
+coef_confint <- cbind(coef, ConfidenceInterval) %>% as.data.frame()
+coef_confint <- coef_confint %>% mutate(variable=rownames(coef_confint))
+library(plyr) 
+coef_confint <- rename(coef_confint,c("coef" = "Beta",
+                                      `2.5 %` = "lower_bound", 
+                                      `97.5 %` = "upper_bound"))
+
+# We don't need to plot the intercept. We can remove it from our data. Reorder variables:
+col_order <- c("variable", "Beta", "lower_bound", "upper_bound")
+coef_confint <- coef_confint[, col_order] #reorder variables in the data frame
+
+plot_lm_dsc <- coef_confint[-1,] %>%  #remove row number 1 (The intercept) 
+  ggplot(aes(x=reorder(variable, Beta), y=Beta)) +
+  geom_point(shape = 16,
+             size  = 3, width = 0.2,
+             position = "dodge", color="black") + 
+  geom_errorbar(aes(ymin  = lower_bound,
+                    ymax  = upper_bound),
+                width = .2,
+                size  = 0.8,
+                position = "dodge", color="black") +
+  theme(axis.title = element_text(face = "bold")) +
+  xlab("Predictor Variables") + ylab("Beta (Response = Dice)") + 
+  scale_y_continuous(breaks = c(-0.5, 0, 0.5)) + 
+  coord_flip(ylim = c(-1, 1)) + 
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  theme(axis.title = element_text(size = 35)) + 
+  theme(axis.text = element_text(size = 35, colour = "black")) +
+  theme_bw(base_size = 35) + 
+  theme(panel.background = (element_blank())) + 
+  labs(caption = "A") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 35))
+
+
+                                   "Youden Index"
+coef <- coef(lmyou)
+ConfidenceInterval <- confint(lmyou)
+coef_confint <- cbind(coef, ConfidenceInterval) %>% as.data.frame()
+coef_confint <- coef_confint %>% mutate(variable=rownames(coef_confint))
+library(plyr) 
+coef_confint <- rename(coef_confint,c("coef" = "Beta",
+                                      `2.5 %` = "lower_bound", 
+                                      `97.5 %` = "upper_bound"))
+
+# We don't need to plot the intercept. We can remove it from our data. Reoiorder variables:
+col_order <- c("variable", "Beta", "lower_bound", "upper_bound")
+coef_confint <- coef_confint[, col_order] #reorder variables in the data frame
+
+plot_lm_you <- coef_confint[-1,] %>%  #remove row number 1 (The intercept) 
+  ggplot(aes(x=reorder(variable, Beta), y=Beta)) +
+  geom_point(shape = 16,
+             size  = 3, width = 0.2,
+             position = "dodge", color="black") + 
+  geom_errorbar(aes(ymin  = lower_bound,
+                    ymax  = upper_bound),
+                width = .2,
+                size  = 0.8,
+                position = "dodge", color="black") +
+  theme(axis.title = element_text(face = "bold")) +
+  xlab("Predictor Variables") + ylab("Beta (Response = YI)") + 
+  scale_y_continuous(breaks = c(-0.5, 0, 0.5)) + 
+  coord_flip(ylim = c(-1, 1)) + 
+  geom_hline(yintercept = 0, color = "black", size = 0.5, linetype = "dashed") +
+  theme(axis.title = element_text(size = 35)) + 
+  theme(axis.text = element_text(size = 35, colour = "black")) +
+  theme_bw(base_size = 35) + 
+  theme(panel.background = (element_blank())) + 
+  labs(caption = "B") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0, size = 35))
+  
+
+png("lm_A.png", units="in", res=300, width = 10, height = 10)
+plot_lm_dsc
+dev.off()
+
+png("lm_B.png", units="in",  res=300, width = 10, height = 10)
+plot_lm_you
+dev.off()
+
+```
+
+
