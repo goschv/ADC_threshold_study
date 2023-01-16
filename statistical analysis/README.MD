@@ -1,4 +1,4 @@
-## `statistical analsis`
+## `statistical analysis`
 
 R-scripts used for the study. Main contains all code for the results section and figures 3-6. Input are Rfiles provided in `data`.
 Output figures in png format.
